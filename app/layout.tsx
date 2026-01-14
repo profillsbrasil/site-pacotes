@@ -26,13 +26,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
+    <html
+      lang="pt-BR"
+      className={`${inter.variable} `}
+      suppressHydrationWarning
+    >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased light relative`}
         suppressHydrationWarning
       >
         <Navbar />
-        {children}
+        <div className="w-full min-h-screen">{children}</div>
       </body>
     </html>
   );

@@ -18,7 +18,7 @@ function NavigationMenu({
       data-slot="navigation-menu"
       data-viewport={viewport}
       className={cn(
-        "max-w-max group/navigation-menu relative flex max-w-max flex-1 items-center justify-center",
+        "group/navigation-menu relative flex flex-1 items-center justify-center",
         className
       )}
       {...props}
@@ -59,7 +59,7 @@ function NavigationMenuItem({
 }
 
 const navigationMenuTriggerStyle = cva(
-  "bg-background hover:bg-muted focus:bg-muted data-open:hover:bg-muted data-open:focus:bg-muted data-open:bg-muted/50 focus-visible:ring-ring/50 data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted rounded-md px-4 py-2 text-sm font-medium transition-all focus-visible:ring-[3px] focus-visible:outline-1 disabled:opacity-50 group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center disabled:pointer-events-none outline-none"
+  "bg-transparent hover:bg-transparent focus:bg-transparent data-open:hover:bg-transparent data-open:focus:bg-transparent data-open:bg-transparent data-popup-open:bg-transparent data-popup-open:hover:bg-transparent rounded-md px-4 py-2 text-sm font-medium transition-all focus-visible:ring-[3px] focus-visible:outline-1 disabled:opacity-50 group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center disabled:pointer-events-none outline-none"
 );
 
 function NavigationMenuTrigger({
