@@ -42,7 +42,7 @@ export function Navbar() {
   return (
     <NavigationMenu className="w-full flex justify-between items-center px-24  fixed top-5 left-0 z-50 bg-transparent">
       <p className="text-lg font-bold">NOME DA EMPRESA</p>
-      <NavigationMenuList className="flex-wrap w-full">
+      <NavigationMenuList className="flex flex-row w-full bg-primary/5 backdrop-blur-mt rounded-full px-2 shadow-md">
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href="/">Home</Link>
@@ -75,7 +75,9 @@ export function Navbar() {
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
-      <Button>Monte o seu Mix</Button>
+      <Button variant="default" className=" rounded-full px-8 py-4">
+        Monte o seu Mix
+      </Button>
     </NavigationMenu>
   );
 }
