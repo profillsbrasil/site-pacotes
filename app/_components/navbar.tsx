@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
-
+import { Dot } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -41,8 +40,10 @@ const components: { title: string; href: string; description: string }[] = [
 export function Navbar() {
   return (
     <NavigationMenu className="w-full flex justify-between items-center px-24  fixed top-5 left-0 z-50 bg-transparent">
-      <p className="text-lg font-bold">NOME DA EMPRESA</p>
-      <NavigationMenuList className="flex flex-row w-full bg-primary/5 backdrop-blur-mt rounded-full px-2 shadow-md">
+      <p className=" flex items-end  text-2xl font-bold uppercase">
+        DuNort <span className="text-primary text-4xl">.</span>
+      </p>
+      <NavigationMenuList className=" bg-white/40 backdrop-blur-md rounded-full px-2 shadow-md">
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link href="/">Home</Link>
