@@ -13,7 +13,7 @@ export default function Page() {
         />
         <div className="absolute bottom-0 left-0 w-full h-29 flex flex-col items-center justify-center">
           <Image
-            src="/assets/siluetas/silueta-laranja.png"
+            src="/assets/siluetas/silueta-dark-green.webp"
             alt="Silhueta"
             fill
             className="object-fill"

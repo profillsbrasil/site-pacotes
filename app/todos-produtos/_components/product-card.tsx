@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import Image from "next/image";
-import { Plus, Check } from "lucide-react";
+import { Plus, Check, ImageOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -42,7 +42,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       <div className="relative aspect-square overflow-hidden bg-muted">
         {imageError ? (
           <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/20">
-            <span className="text-5xl">{category?.emoji || "🥜"}</span>
+            <ImageOffIcon className="size-8 text-muted-foreground/70" />
           </div>
         ) : (
           <Image

@@ -32,7 +32,7 @@ export default function TodosProdutosPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative pt-28 pb-12 lg:pt-32 lg:pb-16 bg-linear-to-b from-primary/5 to-background">
+      <section className="relative pt-32  bg-linear-to-b from-primary/5 to-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -41,11 +41,10 @@ export default function TodosProdutosPage() {
             className="text-center max-w-2xl mx-auto"
           >
             <h1 className="text-3xl lg:text-5xl font-bold text-foreground mb-4">
-              Todos os Produtos
+              Nossos Produtos{" "}
             </h1>
             <p className="text-lg text-muted-foreground">
-              Explore nossa seleção premium de ingredientes naturais para criar
-              seu mix de nuts personalizado.
+              Explore nossa seleção de produtos naturais para você.
             </p>
           </motion.div>
         </div>
