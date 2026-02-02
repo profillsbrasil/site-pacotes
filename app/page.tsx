@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-
+import Link from "next/link";
 export default function Page() {
   return (
     <div className="h-screen w-full">
@@ -37,8 +37,9 @@ export default function Page() {
               </h2>
             </div>
           </div>
-          <Button variant="default" size="lg" className=" px-8 py-4">
-            Monte o seu Mix
+
+          <Button variant="default" size="lg" className=" px-8 py-4" asChild>
+            <Link href="/montar-mix">Monte o seu Mix</Link>
           </Button>
         </div>
       </div>
