@@ -84,26 +84,15 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <NavigationMenu className="hidden lg:flex">
-            <NavigationMenuList
-              className={cn(
-                isScrolled
-                  ? "bg-white/60 backdrop-blur-md rounded-full px-1.5 py-1 shadow-sm border border-border/20"
-                  : "bg-transparent backdrop-blur-none rounded-full px-1.5 py-1 shadow-none border border-transparent"
-              )}
-            >
+            <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuLink
-                  asChild
-                  className={navigationMenuTriggerStyle()}
-                >
+                <NavigationMenuLink asChild>
                   <Link href="/">Home</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent">
-                  Produtos
-                </NavigationMenuTrigger>
+                <NavigationMenuTrigger>Produtos</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid  p-4 w-[400px] md:w-[500px] lg:w-[550px] md:grid-cols-2">
                     <li className="row-span-4 pr-4">
