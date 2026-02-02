@@ -498,7 +498,7 @@ export default function MontarMixPage() {
 
                         <Button
                           type="submit"
-                          className="w-full"
+                          className="w-full bg-amber-600 hover:bg-amber-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all"
                           size="lg"
                           disabled={
                             isSubmitting || totalWeight < MIN_PACKAGE_WEIGHT
@@ -548,12 +548,15 @@ export default function MontarMixPage() {
             <div className="flex gap-3 mt-4">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="flex-1 rounded-full border-amber-600/30 text-amber-700 hover:bg-amber-50"
                 onClick={() => setShowSuccessDialog(false)}
               >
                 Continuar
               </Button>
-              <Button asChild className="flex-1">
+              <Button
+                asChild
+                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white rounded-full"
+              >
                 <Link href="/">Voltar à Home</Link>
               </Button>
             </div>
@@ -666,9 +669,9 @@ function MixItemRow({
       </div>
       <div className="flex items-center gap-1">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-7 w-7"
+          className="h-7 w-7 rounded-full border-amber-600/20 hover:bg-amber-50 hover:text-amber-700"
           onClick={() =>
             onUpdateQuantity(item.product.id, item.quantity - QUANTITY_STEP)
           }
@@ -679,9 +682,9 @@ function MixItemRow({
           {item.quantity}g
         </span>
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-7 w-7"
+          className="h-7 w-7 rounded-full border-amber-600/20 hover:bg-amber-50 hover:text-amber-700"
           onClick={() =>
             onUpdateQuantity(item.product.id, item.quantity + QUANTITY_STEP)
           }
