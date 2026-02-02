@@ -45,73 +45,41 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  --color-nut: var(--nut);
-  --color-nut-dark: var(--nut-dark);
-  --color-nut-light: var(--nut-light);
-  --color-forest: var(--forest);
-  --color-forest-light: var(--forest-light);
-  --color-cream: var(--cream);
-  --color-earth: var(--earth);
 }
 
 :root {
-  /* Palette Premium DuNort - Nuts & Naturaleza */
-  --background: #FDFBF7;
-  --foreground: #2C2416;
+  /* Palette Organic Luxury - Minimalista & Moderno */
+  --background: #FAF9F6;
+  --foreground: #1A1A1A;
   --card: #FFFFFF;
-  --card-foreground: #2C2416;
+  --card-foreground: #1A1A1A;
   --popover: #FFFFFF;
-  --popover-foreground: #2C2416;
+  --popover-foreground: #1A1A1A;
   
-  /* Primary: Âmbar/Dourado - Cor das castanhas */
-  --primary: #B8860B;
-  --primary-foreground: #FFFDF9;
+  /* Primary: Copper Clay - Terra e Sofisticação */
+  --primary: #9E5B3D;
+  --primary-foreground: #FAF9F6;
   
-  /* Secondary: Verde Floresta - Natural/Orgânico */
-  --secondary: #2D5A3D;
-  --secondary-foreground: #F5F5F0;
+  /* Secondary: Silent Moss - Verde Acinzentado Moderno */
+  --secondary: #5B6D5B;
+  --secondary-foreground: #FAF9F6;
   
-  /* Muted: Bege/Cream */
-  --muted: #F5F0E8;
-  --muted-foreground: #6B5B4F;
+  /* Muted: Soft Stone */
+  --muted: #F2F0E9;
+  --muted-foreground: #666666;
   
-  /* Accent: Terra Cotta */
-  --accent: #C65D3B;
-  --accent-foreground: #FFFDF9;
+  /* Accent: Champagne Gold (Sutil) */
+  --accent: #C2A378;
+  --accent-foreground: #1A1A1A;
   
-  /* Destructive: Vermelho suave */
-  --destructive: #DC2626;
-  --destructive-foreground: #FFFFFF;
+  --destructive: #A63D40;
+  --destructive-foreground: #FAF9F6;
   
-  --border: #E8E0D5;
-  --input: #E8E0D5;
-  --ring: #B8860B;
-  
-  /* Custom Colors */
-  --nut: #B8860B;
-  --nut-dark: #8B6914;
-  --nut-light: #D4A84B;
-  --forest: #2D5A3D;
-  --forest-light: #4A7C59;
-  --cream: #FDFBF7;
-  --earth: #6B5B4F;
-  
-  /* Charts */
-  --chart-1: #B8860B;
-  --chart-2: #2D5A3D;
-  --chart-3: #C65D3B;
-  --chart-4: #8B6914;
-  --chart-5: #4A7C59;
-  
-  --radius: 0.625rem;
-  --sidebar: #F5F0E8;
-  --sidebar-foreground: #2C2416;
-  --sidebar-primary: #B8860B;
-  --sidebar-primary-foreground: #FFFDF9;
-  --sidebar-accent: #F5F0E8;
-  --sidebar-accent-foreground: #2C2416;
-  --sidebar-border: #E8E0D5;
-  --sidebar-ring: #B8860B;
+  --border: #E5E2D9;
+  --input: #E5E2D9;
+  --ring: #9E5B3D;
+
+  --radius: 0.75rem;
 }
 
 @layer base {
@@ -119,60 +87,20 @@
     @apply border-border outline-ring/50 ring-0!;
   }
   body {
-    @apply bg-background text-foreground;
-  }
-  
-  /* Smooth scroll */
-  html {
-    scroll-behavior: smooth;
-  }
-  
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--muted);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--muted-foreground);
+    @apply bg-background text-foreground antialiased;
   }
 }
 
 @layer utilities {
-  /* Gradient utilities */
-  .gradient-nut {
-    background: linear-gradient(135deg, var(--nut-light) 0%, var(--nut) 50%, var(--nut-dark) 100%);
-  }
-  .gradient-forest {
-    background: linear-gradient(135deg, var(--forest-light) 0%, var(--forest) 100%);
-  }
-  .gradient-cream {
-    background: linear-gradient(180deg, var(--cream) 0%, var(--muted) 100%);
-  }
-  
-  /* Text shadow for hero */
-  .text-shadow-lg {
-    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  }
-  .text-shadow-md {
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  }
-  
-  /* Glass effect */
   .glass {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm;
   }
-  .glass-dark {
-    background: rgba(44, 36, 22, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .shadow-premium {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
   }
 }

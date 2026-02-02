@@ -1,26 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "./_components/navbar";
-import { Footer } from "./_components/footer";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-
 const geistSans = Geist({
-  variable: "--font-geist-sans",
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-serif",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "DuNort | Mix de Nuts Premium Personalizado",
-  description: "Monte seu mix de castanhas, amêndoas, sementes e frutas secas do seu jeito. Personalizado grão a grão, entregue na sua porta.",
-  keywords: ["mix de nuts", "castanhas", "amêndoas", "sementes", "frutas secas", "saudável", "personalizado"],
+  title: "DuNort | Mix de Nuts Premium",
+  description: "Experiência orgânica e personalizada em mix de nuts.",
 };
 
 export default function RootLayout({
@@ -31,16 +28,15 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${inter.variable} `}
+      className={`${geistSans.variable} ${cormorant.variable}`}
       suppressHydrationWarning
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased light relative`}
+        className="font-sans antialiased bg-background text-foreground selection:bg-primary/10 selection:text-primary"
         suppressHydrationWarning
       >
         <Navbar />
-        <div className="w-full min-h-screen">{children}</div>
-        <Footer />
+        <main className="min-h-screen">{children}</main>
         <Toaster />
       </body>
     </html>
