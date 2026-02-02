@@ -327,6 +327,7 @@ export default function MontarMixPage() {
                       <p>Nenhum produto encontrado</p>
                       <Button
                         variant="link"
+                        className="text-amber-700 hover:text-amber-800"
                         onClick={() => {
                           setSearchQuery("");
                           setSelectedCategory("all");
@@ -372,7 +373,7 @@ export default function MontarMixPage() {
                           variant="ghost"
                           size="sm"
                           onClick={clearMix}
-                          className="text-destructive hover:text-destructive"
+                          className="text-destructive hover:bg-destructive/10 rounded-full"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
