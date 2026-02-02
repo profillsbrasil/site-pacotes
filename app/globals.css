@@ -45,41 +45,73 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  --color-nut: var(--nut);
+  --color-nut-dark: var(--nut-dark);
+  --color-nut-light: var(--nut-light);
+  --color-forest: var(--forest);
+  --color-forest-light: var(--forest-light);
+  --color-cream: var(--cream);
+  --color-earth: var(--earth);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.67 0.16 58);
-  --primary-foreground: oklch(0.99 0.02 95);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.88 0.15 92);
-  --chart-2: oklch(0.77 0.16 70);
-  --chart-3: oklch(0.67 0.16 58);
-  --chart-4: oklch(0.56 0.15 49);
-  --chart-5: oklch(0.47 0.12 46);
+  /* Palette Premium DuNort - Nuts & Naturaleza */
+  --background: #FDFBF7;
+  --foreground: #2C2416;
+  --card: #FFFFFF;
+  --card-foreground: #2C2416;
+  --popover: #FFFFFF;
+  --popover-foreground: #2C2416;
+  
+  /* Primary: Âmbar/Dourado - Cor das castanhas */
+  --primary: #B8860B;
+  --primary-foreground: #FFFDF9;
+  
+  /* Secondary: Verde Floresta - Natural/Orgânico */
+  --secondary: #2D5A3D;
+  --secondary-foreground: #F5F5F0;
+  
+  /* Muted: Bege/Cream */
+  --muted: #F5F0E8;
+  --muted-foreground: #6B5B4F;
+  
+  /* Accent: Terra Cotta */
+  --accent: #C65D3B;
+  --accent-foreground: #FFFDF9;
+  
+  /* Destructive: Vermelho suave */
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+  
+  --border: #E8E0D5;
+  --input: #E8E0D5;
+  --ring: #B8860B;
+  
+  /* Custom Colors */
+  --nut: #B8860B;
+  --nut-dark: #8B6914;
+  --nut-light: #D4A84B;
+  --forest: #2D5A3D;
+  --forest-light: #4A7C59;
+  --cream: #FDFBF7;
+  --earth: #6B5B4F;
+  
+  /* Charts */
+  --chart-1: #B8860B;
+  --chart-2: #2D5A3D;
+  --chart-3: #C65D3B;
+  --chart-4: #8B6914;
+  --chart-5: #4A7C59;
+  
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.67 0.16 58);
-  --sidebar-primary-foreground: oklch(0.99 0.02 95);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #F5F0E8;
+  --sidebar-foreground: #2C2416;
+  --sidebar-primary: #B8860B;
+  --sidebar-primary-foreground: #FFFDF9;
+  --sidebar-accent: #F5F0E8;
+  --sidebar-accent-foreground: #2C2416;
+  --sidebar-border: #E8E0D5;
+  --sidebar-ring: #B8860B;
 }
 
 @layer base {
@@ -88,5 +120,59 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--muted);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+}
+
+@layer utilities {
+  /* Gradient utilities */
+  .gradient-nut {
+    background: linear-gradient(135deg, var(--nut-light) 0%, var(--nut) 50%, var(--nut-dark) 100%);
+  }
+  .gradient-forest {
+    background: linear-gradient(135deg, var(--forest-light) 0%, var(--forest) 100%);
+  }
+  .gradient-cream {
+    background: linear-gradient(180deg, var(--cream) 0%, var(--muted) 100%);
+  }
+  
+  /* Text shadow for hero */
+  .text-shadow-lg {
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+  .text-shadow-md {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Glass effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .glass-dark {
+    background: rgba(44, 36, 22, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 }
