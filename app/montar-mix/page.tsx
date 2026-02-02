@@ -1,55 +1,36 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { products, categories, type Product } from "@/lib/products-data";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { categories, products, type Product } from "@/lib/products-data";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
-import {
-  AlertCircle,
-  Check,
-  Info,
-  Minus,
-  Package,
-  Plus,
-  Search,
   ShoppingBag,
+  Plus,
+  Minus,
   Trash2,
-  X,
+  Check,
+  Search,
+  ChevronRight,
+  Info,
+  Package,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import * as z from "zod";
 
-// Schema de validação
+// Schema
 const customerSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   phone: z.string().min(10, "Telefone inválido"),
@@ -64,661 +45,302 @@ interface MixItem {
   quantity: number;
 }
 
-const MIN_PACKAGE_WEIGHT = 100;
-const MAX_PACKAGE_WEIGHT = 5000;
-const QUANTITY_STEP = 50;
-
-// Preço por grama
-const calculatePricePerGram = (product: Product): number =>
-  product.price / product.weight;
-
-// Formatar preço
-const formatPrice = (price: number): string =>
-  `R$ ${price.toFixed(2).replace(".", ",")}`;
+const MIN_WEIGHT = 100;
+const MAX_WEIGHT = 5000;
+const STEP = 50;
 
 export default function MontarMixPage() {
   const [mixItems, setMixItems] = useState<MixItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | "all">(
-    "all"
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // React Hook Form
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    watch,
-  } = useForm<CustomerData>({
+  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<CustomerData>({
     resolver: zodResolver(customerSchema),
   });
 
   const watchedName = watch("name");
 
-  // Load from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("dunort-mix");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setMixItems(parsed.items || []);
-        reset({
-          name: parsed.customerName || "",
-          phone: parsed.customerPhone || "",
-          email: parsed.customerEmail || "",
-          notes: parsed.notes || "",
-        });
-      } catch {
-        toast.error("Erro ao carregar mix salvo");
-      }
-    }
-  }, [reset]);
-
-  // Save to localStorage
-  useEffect(() => {
-    const subscription = watch((data) => {
-      localStorage.setItem(
-        "dunort-mix",
-        JSON.stringify({
-          items: mixItems,
-          customerName: data.name || "",
-          customerPhone: data.phone || "",
-          customerEmail: data.email || "",
-          notes: data.notes || "",
-        })
-      );
-    });
-    return () => subscription.unsubscribe();
-  }, [mixItems, watch]);
-
-  // Filtrar produtos
-  const filteredProducts = useMemo(() => {
-    let result = products;
-    if (selectedCategory !== "all") {
-      result = result.filter((p) => p.category === selectedCategory);
-    }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q)
-      );
-    }
-    return result;
-  }, [selectedCategory, searchQuery]);
-
-  // Totais memoizados
+  // Totals
   const { totalWeight, totalPrice, itemCount } = useMemo(() => {
     const weight = mixItems.reduce((sum, item) => sum + item.quantity, 0);
-    const price = mixItems.reduce(
-      (sum, item) => sum + calculatePricePerGram(item.product) * item.quantity,
-      0
-    );
-    return {
-      totalWeight: weight,
-      totalPrice: price,
-      itemCount: mixItems.length,
-    };
+    const price = mixItems.reduce((sum, item) => sum + (item.product.price / item.product.weight) * item.quantity, 0);
+    return { totalWeight: weight, totalPrice: price, itemCount: mixItems.length };
   }, [mixItems]);
 
-  // Adicionar ao mix
   const addToMix = useCallback((product: Product) => {
     setMixItems((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
-        toast.info(`${product.name} já está no mix! Quantidade aumentada.`);
         return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + QUANTITY_STEP }
-            : item
+          item.product.id === product.id ? { ...item, quantity: item.quantity + STEP } : item
         );
       }
       toast.success(`${product.name} adicionado ao mix!`);
-      return [...prev, { product, quantity: QUANTITY_STEP }];
+      return [...prev, { product, quantity: STEP }];
     });
   }, []);
 
-  // Atualizar quantidade
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
+  const updateQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
-      setMixItems((prev) =>
-        prev.filter((item) => item.product.id !== productId)
-      );
-      toast.info("Item removido do mix");
+      setMixItems((prev) => prev.filter((item) => item.product.id !== productId));
       return;
     }
-    if (quantity > MAX_PACKAGE_WEIGHT) {
-      toast.error(`Quantidade máxima por item: ${MAX_PACKAGE_WEIGHT}g`);
-      return;
-    }
-    setMixItems((prev) =>
-      prev.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
-      )
-    );
-  }, []);
-
-  // Remover do mix
-  const removeFromMix = useCallback(
-    (productId: string, productName: string) => {
-      setMixItems((prev) =>
-        prev.filter((item) => item.product.id !== productId)
-      );
-      toast.info(`${productName} removido do mix`);
-    },
-    []
-  );
-
-  // Limpar mix
-  const clearMix = useCallback(() => {
-    setMixItems([]);
-    toast.info("Mix limpo");
-  }, []);
-
-  // Submit do pedido
-  const onSubmit = async (data: CustomerData) => {
-    if (totalWeight < MIN_PACKAGE_WEIGHT) {
-      toast.error(`Mínimo de ${MIN_PACKAGE_WEIGHT}g para fazer pedido`);
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    // Simular envio
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsSubmitting(false);
-    setShowSuccessDialog(true);
-
-    // Limpar após sucesso
-    setMixItems([]);
-    reset();
-    localStorage.removeItem("dunort-mix");
+    setMixItems((prev) => prev.map((item) => item.product.id === productId ? { ...item, quantity } : item));
   };
 
+  const onSubmit = async (data: CustomerData) => {
+    if (totalWeight < MIN_WEIGHT) {
+      toast.error(`O peso mínimo é de ${MIN_WEIGHT}g`);
+      return;
+    }
+    setIsSubmitting(true);
+    await new Promise(r => setTimeout(r, 1500));
+    setIsSubmitting(false);
+    setShowSuccessDialog(true);
+    setMixItems([]);
+    reset();
+  };
+
+  const filteredProducts = products.filter(p => {
+    const matchesCat = selectedCategory === "all" || p.category === selectedCategory;
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCat && matchesSearch;
+  });
+
   return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-cream pt-24 pb-12">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Monte seu Mix
-                </h1>
-                <p className="text-muted-foreground">
-                  Escolha seus ingredientes favoritos e monte o mix perfeito
-                </p>
-              </div>
-
-              {itemCount > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="w-fit text-base px-4 py-2"
-                >
-                  <ShoppingBag className="w-4 h-4 mr-2" />
-                  {itemCount} {itemCount === 1 ? "item" : "itens"} •{" "}
-                  {totalWeight}g
-                </Badge>
-              )}
-            </div>
+    <div className="min-h-screen bg-background pt-32 pb-20">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            <span className="text-[10px] uppercase tracking-[0.3em] font-semibold text-primary mb-4 block">
+              Ateliê de Personalização
+            </span>
+            <h1 className="text-4xl md:text-6xl font-serif font-bold text-foreground">
+              Crie seu <span className="italic font-normal text-secondary">Mix Único</span>
+            </h1>
           </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Products Selection */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <CardTitle className="flex items-center gap-2">
-                        <Package className="w-5 h-5 text-primary" />
-                        Ingredientes
-                      </CardTitle>
-                      <div className="relative max-w-xs">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Buscar produto..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9"
-                        />
-                        {searchQuery && (
-                          <button
-                            onClick={() => setSearchQuery("")}
-                            className="absolute right-3 top-1/2 -translate-y-1/2"
-                          >
-                            <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Category Tabs */}
-                    <Tabs
-                      value={selectedCategory}
-                      onValueChange={setSelectedCategory}
-                    >
-                      <TabsList className="flex-wrap h-auto">
-                        <TabsTrigger value="all">Todos</TabsTrigger>
-                        {categories.map((cat) => (
-                          <TabsTrigger key={cat.id} value={cat.id}>
-                            {cat.emoji} {cat.name}
-                          </TabsTrigger>
-                        ))}
-                      </TabsList>
-                    </Tabs>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {/* Products Grid */}
-                  {filteredProducts.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                      <p>Nenhum produto encontrado</p>
-                      <Button
-                        variant="link"
-                        className="text-amber-700 hover:text-amber-800"
-                        onClick={() => {
-                          setSearchQuery("");
-                          setSelectedCategory("all");
-                        }}
-                      >
-                        Limpar filtros
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {filteredProducts.map((product) => {
-                        const inMix = mixItems.find(
-                          (item) => item.product.id === product.id
-                        );
-                        return (
-                          <ProductCard
-                            key={product.id}
-                            product={product}
-                            inMix={inMix}
-                            onClick={() => addToMix(product)}
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Mix Summary Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 space-y-4">
-                {/* Mix Card */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <ShoppingBag className="w-5 h-5 text-primary" />
-                        Seu Mix
-                      </span>
-                      {itemCount > 0 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={clearMix}
-                          className="text-destructive hover:bg-destructive/10 rounded-full"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {itemCount === 0 ? (
-                      <EmptyMixState />
-                    ) : (
-                      <>
-                        <ScrollArea className="h-64 mb-4">
-                          <div className="space-y-3 pr-4">
-                            {mixItems.map((item) => (
-                              <MixItemRow
-                                key={item.product.id}
-                                item={item}
-                                onUpdateQuantity={updateQuantity}
-                                onRemove={removeFromMix}
-                              />
-                            ))}
-                          </div>
-                        </ScrollArea>
-
-                        <Separator />
-
-                        {/* Totals */}
-                        <div className="pt-4 space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">
-                              Peso total:
-                            </span>
-                            <span className="font-medium">{totalWeight}g</span>
-                          </div>
-                          <div className="flex justify-between text-lg font-bold">
-                            <span>Total:</span>
-                            <span className="text-primary">
-                              {formatPrice(totalPrice)}
-                            </span>
-                          </div>
-                          {totalWeight < MIN_PACKAGE_WEIGHT && (
-                            <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-                              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                              <span>Mínimo: {MIN_PACKAGE_WEIGHT}g</span>
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Customer Form */}
-                {itemCount > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">
-                        Dados para Contato
-                      </CardTitle>
-                      <CardDescription>
-                        Preencha para finalizar seu pedido
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <form
-                        onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-4"
-                      >
-                        <div>
-                          <Label htmlFor="name">Nome completo *</Label>
-                          <Input
-                            id="name"
-                            {...register("name")}
-                            placeholder="Seu nome"
-                            className={errors.name ? "border-destructive" : ""}
-                          />
-                          {errors.name && (
-                            <p className="text-sm text-destructive mt-1">
-                              {errors.name.message}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <Label htmlFor="phone">WhatsApp *</Label>
-                          <Input
-                            id="phone"
-                            {...register("phone")}
-                            placeholder="(11) 99999-9999"
-                            className={errors.phone ? "border-destructive" : ""}
-                          />
-                          {errors.phone && (
-                            <p className="text-sm text-destructive mt-1">
-                              {errors.phone.message}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <Label htmlFor="email">Email (opcional)</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            {...register("email")}
-                            placeholder="seu@email.com"
-                            className={errors.email ? "border-destructive" : ""}
-                          />
-                          {errors.email && (
-                            <p className="text-sm text-destructive mt-1">
-                              {errors.email.message}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <Label htmlFor="notes">Observações</Label>
-                          <Input
-                            id="notes"
-                            {...register("notes")}
-                            placeholder="Alguma observação especial?"
-                          />
-                        </div>
-
-                        <Button
-                          type="submit"
-                          className="w-full bg-amber-600 hover:bg-amber-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all"
-                          size="lg"
-                          disabled={
-                            isSubmitting || totalWeight < MIN_PACKAGE_WEIGHT
-                          }
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                              Enviando...
-                            </>
-                          ) : totalWeight < MIN_PACKAGE_WEIGHT ? (
-                            <>
-                              <AlertCircle className="w-4 h-4 mr-2" />
-                              Mínimo {MIN_PACKAGE_WEIGHT}g
-                            </>
-                          ) : (
-                            <>
-                              <ShoppingBag className="w-4 h-4 mr-2" />
-                              Fazer Pedido
-                            </>
-                          )}
-                        </Button>
-                      </form>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </div>
+          <motion.p initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="text-muted-foreground text-sm max-w-xs font-light">
+            Selecione seus ingredientes favoritos. Cada grama é escolhida por você para criar o equilíbrio perfeito.
+          </motion.p>
         </div>
 
-        {/* Success Dialog */}
-        <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <Check className="w-8 h-8 text-green-600" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          
+          {/* Main Selection Area */}
+          <div className="lg:col-span-8 space-y-10">
+            
+            {/* Search & Filters */}
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <div className="relative w-full sm:w-72 group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-300 group-focus-within:text-primary transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="Buscar ingrediente..."
+                  className="w-full bg-stone-50 border-b border-stone-200 py-3 pl-11 pr-4 text-sm outline-none focus:border-primary transition-all font-light"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-              <DialogTitle className="text-center text-2xl">
-                Pedido Recebido!
-              </DialogTitle>
-              <DialogDescription className="text-center">
-                Obrigado, {watchedName || "cliente"}! Entraremos em contato em
-                breve para confirmar seu pedido.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex gap-3 mt-4">
-              <Button
-                variant="outline"
-                className="flex-1 rounded-full border-amber-600/30 text-amber-700 hover:bg-amber-50"
-                onClick={() => setShowSuccessDialog(false)}
-              >
-                Continuar
-              </Button>
-              <Button
-                asChild
-                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white rounded-full"
-              >
-                <Link href="/">Voltar à Home</Link>
-              </Button>
+              <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+                <TabsList className="bg-transparent border-b border-stone-100 w-full justify-start h-auto p-0 gap-6">
+                  <TabsTrigger value="all" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-3 text-xs uppercase tracking-widest font-semibold text-stone-400 data-[state=active]:text-foreground">
+                    Todos
+                  </TabsTrigger>
+                  {categories.map(cat => (
+                    <TabsTrigger key={cat.id} value={cat.id} className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-3 text-xs uppercase tracking-widest font-semibold text-stone-400 data-[state=active]:text-foreground">
+                      {cat.name}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </TooltipProvider>
-  );
-}
 
-// Componente de produto
-function ProductCard({
-  product,
-  inMix,
-  onClick,
-}: {
-  product: Product;
-  inMix?: MixItem;
-  onClick: () => void;
-}) {
-  const [imageError, setImageError] = useState(false);
+            {/* Grid de Ingredientes */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+              <AnimatePresence mode="popLayout">
+                {filteredProducts.map((product) => {
+                  const inMix = mixItems.find(item => item.product.id === product.id);
+                  return (
+                    <motion.div
+                      layout
+                      key={product.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      onClick={() => addToMix(product)}
+                      className={cn(
+                        "group cursor-pointer rounded-2xl border transition-all duration-500 overflow-hidden",
+                        inMix ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-white border-stone-100 hover:border-primary/20 hover:shadow-lg"
+                      )}
+                    >
+                      <div className="relative aspect-square overflow-hidden bg-stone-50">
+                        <Image src={product.image} alt={product.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                        {inMix && (
+                          <div className="absolute inset-0 bg-primary/10 flex items-center justify-center backdrop-blur-[2px]">
+                            <div className="bg-white px-3 py-1.5 rounded-full shadow-xl flex items-center gap-1.5">
+                              <Check className="w-3.5 h-3.5 text-primary" />
+                              <span className="text-xs font-bold">{inMix.quantity}g</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <h4 className="text-sm font-medium mb-1 group-hover:text-primary transition-colors">{product.name}</h4>
+                        <p className="text-[10px] text-stone-400 uppercase tracking-widest">R$ {(product.price / product.weight).toFixed(2)} / g</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          </div>
 
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <motion.div
-          layout
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer ${
-            inMix
-              ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/50"
-          }`}
-          onClick={onClick}
-        >
-          <div className="relative w-full aspect-square mb-3 rounded-lg overflow-hidden bg-muted">
-            {!imageError ? (
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-cover"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-muted">
-                <Package className="w-8 h-8 text-muted-foreground/50" />
+          {/* Sidebar: Summary & Checkout */}
+          <div className="lg:col-span-4 sticky top-32 space-y-6">
+            <Card className="rounded-3xl border-none shadow-premium bg-stone-50/50 overflow-hidden">
+              <div className="p-8">
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-xl font-serif font-bold">Seu Mix Personalizado</h3>
+                  {itemCount > 0 && (
+                    <button onClick={() => setMixItems([])} className="text-stone-400 hover:text-destructive transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {itemCount === 0 ? (
+                  <div className="py-20 text-center space-y-4">
+                    <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto">
+                      <ShoppingBag className="w-6 h-6 text-stone-300" />
+                    </div>
+                    <p className="text-sm text-stone-400 font-light">Seu pote está vazio.<br/>Selecione ingredientes à esquerda.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <ScrollArea className="h-[300px] pr-4">
+                      <div className="space-y-4">
+                        {mixItems.map((item) => (
+                          <div key={item.product.id} className="flex items-center gap-4 group/item">
+                            <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-stone-100">
+                              <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h5 className="text-sm font-medium truncate">{item.product.name}</h5>
+                              <p className="text-xs text-stone-400">R$ {((item.product.price / item.product.weight) * item.quantity).toFixed(2).replace(".", ",")}</p>
+                            </div>
+                            <div className="flex items-center gap-2 bg-white rounded-full p-1 shadow-sm">
+                              <button 
+                                onClick={() => updateQuantity(item.product.id, item.quantity - STEP)}
+                                className="w-6 h-6 flex items-center justify-center hover:text-primary"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="text-xs font-bold w-8 text-center">{item.quantity}g</span>
+                              <button 
+                                onClick={() => updateQuantity(item.product.id, item.quantity + STEP)}
+                                className="w-6 h-6 flex items-center justify-center hover:text-primary"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    
+                    <Separator className="bg-stone-200" />
+                    
+                    {/* Totals & Progress */}
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-[10px] uppercase tracking-widest font-bold text-stone-400">
+                          <span>Capacidade do Pote</span>
+                          <span>{totalWeight}g / {MAX_WEIGHT}g</span>
+                        </div>
+                        <div className="h-1 w-full bg-stone-200 rounded-full overflow-hidden">
+                          <motion.div 
+                            className="h-full bg-secondary"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(totalWeight / MAX_WEIGHT) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-stone-500">Valor Estimado</span>
+                        <span className="text-2xl font-serif font-bold text-primary">R$ {totalPrice.toFixed(2).replace(".", ",")}</span>
+                      </div>
+
+                      {totalWeight < MIN_WEIGHT && (
+                        <div className="flex items-start gap-2 p-3 bg-amber-50 rounded-xl">
+                          <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                          <p className="text-[10px] leading-tight text-amber-700">Adicione pelo menos {MIN_WEIGHT}g para prosseguir com sua encomenda artesanal.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-            {inMix && (
-              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                <Badge className="bg-primary text-white">
-                  {inMix.quantity}g
-                </Badge>
-              </div>
+            </Card>
+
+            {/* Checkout Form Card */}
+            {itemCount > 0 && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                <Card className="rounded-3xl border-none shadow-premium p-8">
+                  <h4 className="text-lg font-serif font-bold mb-6">Finalizar Encomenda</h4>
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="name" className="text-[10px] uppercase tracking-[0.2em] text-stone-400">Nome Completo</Label>
+                      <Input {...register("name")} id="name" className="bg-stone-50 border-none rounded-xl" placeholder="Ex: Maria Silva" />
+                      {errors.name && <p className="text-[10px] text-destructive">{errors.name.message}</p>}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="phone" className="text-[10px] uppercase tracking-[0.2em] text-stone-400">WhatsApp</Label>
+                      <Input {...register("phone")} id="phone" className="bg-stone-50 border-none rounded-xl" placeholder="(11) 99999-9999" />
+                      {errors.phone && <p className="text-[10px] text-destructive">{errors.phone.message}</p>}
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full rounded-full h-12 bg-primary text-primary-foreground hover:scale-[1.02] transition-all shadow-lg"
+                      disabled={isSubmitting || totalWeight < MIN_WEIGHT}
+                    >
+                      {isSubmitting ? "Processando..." : "Confirmar Mix"}
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </form>
+                </Card>
+              </motion.div>
             )}
           </div>
-          <h4 className="font-medium text-sm truncate">{product.name}</h4>
-          <p className="text-xs text-muted-foreground">
-            {formatPrice(product.price)} / {product.weight}g
-          </p>
-        </motion.div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className="font-medium">{product.name}</p>
-        <p className="text-xs text-muted-foreground">{product.description}</p>
-      </TooltipContent>
-    </Tooltip>
-  );
-}
+        </div>
+      </div>
 
-// Componente de item no mix
-function MixItemRow({
-  item,
-  onUpdateQuantity,
-  onRemove,
-}: {
-  item: MixItem;
-  onUpdateQuantity: (id: string, qty: number) => void;
-  onRemove: (id: string, name: string) => void;
-}) {
-  const [imageError, setImageError] = useState(false);
-  const itemTotal = calculatePricePerGram(item.product) * item.quantity;
-
-  return (
-    <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
-      <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-        {!imageError ? (
-          <Image
-            src={item.product.image}
-            alt={item.product.name}
-            fill
-            className="object-cover"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Package className="w-5 h-5 text-muted-foreground/50" />
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="sm:max-w-md rounded-3xl border-none">
+          <DialogHeader className="items-center text-center">
+            <div className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mb-6">
+              <Check className="w-10 h-10 text-secondary" />
+            </div>
+            <DialogTitle className="text-3xl font-serif font-bold">Pedido Enviado!</DialogTitle>
+            <DialogDescription className="text-base font-light text-stone-500 pt-2">
+              Obrigado, {watchedName}! Seu mix personalizado já está sendo preparado com todo o carinho em nosso ateliê. Entraremos em contato via WhatsApp em breve.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-4 mt-8">
+            <Button variant="outline" className="flex-1 rounded-full border-stone-200" onClick={() => setShowSuccessDialog(false)}>
+              Ver Mix
+            </Button>
+            <Button asChild className="flex-1 rounded-full bg-primary">
+              <Link href="/">Voltar à Home</Link>
+            </Button>
           </div>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm truncate">{item.product.name}</p>
-        <p className="text-xs text-muted-foreground">
-          {formatPrice(itemTotal)}
-        </p>
-      </div>
-      <div className="flex items-center gap-1">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-7 w-7 rounded-full border-amber-600/20 hover:bg-amber-50 hover:text-amber-700"
-          onClick={() =>
-            onUpdateQuantity(item.product.id, item.quantity - QUANTITY_STEP)
-          }
-        >
-          <Minus className="w-3 h-3" />
-        </Button>
-        <span className="text-sm font-medium w-12 text-center">
-          {item.quantity}g
-        </span>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-7 w-7 rounded-full border-amber-600/20 hover:bg-amber-50 hover:text-amber-700"
-          onClick={() =>
-            onUpdateQuantity(item.product.id, item.quantity + QUANTITY_STEP)
-          }
-        >
-          <Plus className="w-3 h-3" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 text-destructive"
-          onClick={() => onRemove(item.product.id, item.product.name)}
-        >
-          <Trash2 className="w-3 h-3" />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-// Estado vazio do mix
-function EmptyMixState() {
-  return (
-    <div className="text-center py-8 text-muted-foreground">
-      <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
-        <ShoppingBag className="w-6 h-6 opacity-50" />
-      </div>
-      <p className="font-medium">Seu mix está vazio</p>
-      <p className="text-sm mt-1">Clique nos produtos para começar</p>
-
-      <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground justify-center">
-        <Info className="w-3 h-3" />
-        <span>Mínimo 100g para pedido</span>
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
