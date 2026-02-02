@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Package,
@@ -285,8 +286,8 @@ export default function MontarMixPage() {
                     </div>
                   ) : (
                     <>
-                      <div className="h-64 mb-4 overflow-y-auto">
-                        <div className="space-y-3">
+                      <ScrollArea className="h-64 mb-4">
+                        <div className="space-y-3 pr-4">
                           {mixItems.map((item) => (
                             <div
                               key={item.product.id}
@@ -348,7 +349,7 @@ export default function MontarMixPage() {
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </ScrollArea>
 
                       <Separator />
 

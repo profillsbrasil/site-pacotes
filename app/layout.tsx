@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "./_components/navbar";
 import { Footer } from "./_components/footer";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -40,6 +41,7 @@ export default function RootLayout({
         <Navbar />
         <div className="w-full min-h-screen">{children}</div>
         <Footer />
+        <Toaster />
       </body>
     </html>
   );
