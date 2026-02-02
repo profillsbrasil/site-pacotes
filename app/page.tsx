@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { ChevronDown, Package, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, Leaf, Package, Sparkles, Truck } from "lucide-react";
-import { FeaturedProducts } from "./_components/featured-products";
 import { CategoriesGrid } from "./_components/categories-grid";
+import { FeaturedProducts } from "./_components/featured-products";
 import { HowItWorks } from "./_components/how-it-works";
 import { WhyDuNort } from "./_components/why-dunort";
 
@@ -43,7 +43,9 @@ export default function HomePage() {
               className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-8"
             >
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span className="text-white/90 text-sm font-medium">100% Natural e Fresco</span>
+              <span className="text-white/90 text-sm font-medium">
+                100% Natural e Fresco
+              </span>
             </motion.div>
 
             {/* Logo */}
@@ -69,8 +71,7 @@ export default function HomePage() {
               transition={{ delay: 0.4, duration: 0.6 }}
               className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 text-shadow-lg tracking-tight"
             >
-              A Dose Certa de{" "}
-              <span className="text-amber-400">Saúde</span>
+              A Dose Certa de <span className="text-amber-400">Saúde</span>
             </motion.h1>
 
             {/* Subtitle */}
