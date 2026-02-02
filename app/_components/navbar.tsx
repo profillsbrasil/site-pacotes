@@ -1,9 +1,6 @@
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
-import { motion } from "motion/react";
-import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,8 +10,11 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Menu } from "lucide-react";
+import { motion } from "motion/react";
+import Link from "next/link";
+import * as React from "react";
 
 const categories = [
   {
@@ -164,7 +164,7 @@ export function Navbar() {
             <Button
               asChild
               variant="default"
-              className="hidden lg:inline-flex rounded-full px-6 font-medium shadow-sm"
+              className="hidden lg:inline-flex rounded-full px-6 font-medium shadow-sm bg-amber-600 hover:bg-amber-700 text-white"
             >
               <Link href="/montar-mix">Monte seu Mix</Link>
             </Button>

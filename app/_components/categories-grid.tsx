@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { categories } from "@/lib/products-data";
-import Link from "next/link";
+import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const categoryImages: Record<string, string> = {
   castanhas: "/assets/products/castanha-caju.jpg",
@@ -61,14 +61,20 @@ export function CategoriesGrid() {
                     backgroundImage: `url(${categoryImages[category.id]})`,
                   }}
                 />
-                
+
                 {/* Overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-t ${categoryColors[category.id]} transition-opacity duration-300`} />
-                
+                <div
+                  className={`absolute inset-0 bg-linear-to-t ${
+                    categoryColors[category.id]
+                  } transition-opacity duration-300`}
+                />
+
                 {/* Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4">
                   <span className="text-4xl mb-2">{category.emoji}</span>
-                  <h3 className="text-lg font-semibold text-center mb-1">{category.name}</h3>
+                  <h3 className="text-lg font-semibold text-center mb-1">
+                    {category.name}
+                  </h3>
                   <div className="flex items-center text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     Ver produtos
                     <ArrowRight className="w-4 h-4 ml-1" />

@@ -107,7 +107,7 @@ export default function HomePage() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 rounded-full px-8 py-6 text-lg font-semibold"
+                className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:text-white hover:bg-white/20 rounded-full px-8 py-6 text-lg font-semibold"
               >
                 <Link href="/todos-produtos">Ver Produtos</Link>
               </Button>
